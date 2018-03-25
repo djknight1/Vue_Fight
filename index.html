@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>搞事情了！</title>
+    <link rel="stylesheet" href="lib/normalize.css">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="main">
+    <div class="navbar">
+       <h1> Djknight</h1>
+    </div>
+    <div class="header">先玩游戏在写作业</div>
+    <form @submit.prevent="merge" id="task-form">  <!--prevent是阻止默认事件 如果没有这个prevent表单提交后会自动刷新页面-->
+        <div class="wrap">
+            <input v-model="current_content.title" id="task-input" type="text"> <!--和current里面的东西绑定-->
+            <button type="submit" >submit</button>  <!--点击button submit然后form表单提交 此时prevent了他的自动刷新,并且触发add函数-->
+        </div>
+    </form>
+    <div class="task-list">
+        <div class="wrap">
+            未完成
+            <div v-for="(todo,index) in list" class="item"> <!--因为list里是对象 所以这里的todo也是对象-->
+                {{todo.title}}
+                <button @click="remove(index)">删除</button>
+                <button @click="current_content = todo ">更新</button>         <!-- <button @click="current_content = todo1">更新</button>-->
+                                                            <!--这个方法使用后点击更新 上面的input会出现你要更新的那一项-->
+                                                            <!--更改他就会更改当前选中的那一项 但是你再次submit 就会提交新的任务-->
+                                                            <!--所以不如将之前的add方法更改成merge噜 包含add和update-->
+
+            </div>
+                    <!--index表示todo的索引-->
+        </div>
+    </div>
+    <div class="task-list">
+        <div class="wrap">
+            已完成
+            <div class="item complete">
+                asdasdasdasdasdasd
+            </div>
+        </div>
+
+    </div>
+    <div class="footer">
+
+
+
+    </div>
+</div>
+<script src="lib/vue.js"></script>
+<script src="js/myStorage.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
