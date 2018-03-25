@@ -14,40 +14,54 @@
     <div class="header">先玩游戏在写作业</div>
     <form @submit.prevent="merge" id="task-form">  <!--prevent是阻止默认事件 如果没有这个prevent表单提交后会自动刷新页面-->
         <div class="wrap">
-            <input v-model="current_content.title" id="task-input" type="text"> <!--和current里面的东西绑定-->
+            <input v-model="current_content.title" id="task-input" type="text" autocomplete="off"> <!--和current里面的东西绑定-->
             <button type="submit" >submit</button>  <!--点击button submit然后form表单提交 此时prevent了他的自动刷新,并且触发add函数-->
         </div>
     </form>
     <div class="task-list">
         <div class="wrap">
             未完成
-            <div v-for="(todo,index) in list" class="item"> <!--因为list里是对象 所以这里的todo也是对象-->
-                {{todo.title}}
-                <button @click="remove(index)">删除</button>
-                <button @click="current_content = todo ">更新</button>         <!-- <button @click="current_content = todo1">更新</button>-->
-                                                            <!--这个方法使用后点击更新 上面的input会出现你要更新的那一项-->
-                                                            <!--更改他就会更改当前选中的那一项 但是你再次submit 就会提交新的任务-->
-                                                            <!--所以不如将之前的add方法更改成merge噜 包含add和update-->
+            <!--这个地方要好好的思考思考 v-if v-for在这里使用就相当于对子组件div使用
+            这里的task就是父组件,是Vue定义的父组件,所以要在Vue的mounted里面接受子组件的事件-->
+            <!--v-bind传一个对象相当于把对象的所有属性给子组件使用-->
+            <!--所以task里面的组件要是想引用todo 就需要在component声明props-->
+            <task :todo="todo"
+                v-if="!todo.completed"
+                v-for="(todo,index) in list">
+            </task>
 
-            </div>
-                    <!--index表示todo的索引-->
         </div>
+
     </div>
     <div class="task-list">
         <div class="wrap">
             已完成
-            <div class="item complete">
-                asdasdasdasdasdasd
+            <div v-if="todo.completed" v-for="(todo,index) in list" class="item completed"> <!--Vfor把每一个数组里的对象渲染到下面的todo.title中 增加一个 渲染多一个-->
+                <button @click="change_completed(todo.id)">已完成</button>                     <!--因为list里是对象 所以这里的todo也是对象-->
+                {{todo.title}}                                                               <!--通过id找索引再删除-->
+                <button @click="remove(todo.id)">删除</button>                        <!--变成set是为了不让他时时修改-->
+                <button @click="set_current(todo)">更新</button>                       <!-- <button @click="current_content = todo1">更新</button>-->
+                                                                                        <!--更改他就会更改当前选中的那一项 但是你再次submit 就会提交新的任务-->
+                                                                                      <!--所以不如将之前的add方法更改成merge噜 包含add和update-->
             </div>
         </div>
-
     </div>
     <div class="footer">
-
-
-
     </div>
 </div>
+<template id="task-tpl">
+    <div  class="item">
+        <!--因为list里是对象 所以这里的todo也是对象-->
+        <!--直接按按钮会报错 因为此时组件并没有方法-->
+        <!--子组件的方法其实就是父组件数据的增删改-->
+        <!--但是子组件一定不能操控父组件的数据,要不然会很乱-->
+        <!--所以可以向上发送一个行为-->
+        <button @click="action('change_completed',todo.id)">未完成</button>
+        {{todo.title}}
+        <button @click="action('remove',todo.id)">删除</button>
+        <button @click="action('set_current',todo)">更新</button>
+    </div>
+</template>
 <script src="lib/vue.js"></script>
 <script src="js/myStorage.js"></script>
 <script src="js/main.js"></script>
