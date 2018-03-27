@@ -15,7 +15,11 @@
     <form @submit.prevent="merge" id="task-form">  <!--prevent是阻止默认事件 如果没有这个prevent表单提交后会自动刷新页面-->
         <div class="wrap">
             <input v-model="current_content.title" id="task-input" type="text" autocomplete="off"> <!--和current里面的东西绑定-->
-            <button type="submit" >submit</button>  <!--点击button submit然后form表单提交 此时prevent了他的自动刷新,并且触发add函数-->
+            <div v-if="current_content.id" class="detail">
+                <textarea v-model="current_content.des"></textarea>
+                <input v-model="current_content.alert_time" type="datetime-local">
+                <button type="submit" >submit</button>  <!--点击button submit然后form表单提交 此时prevent了他的自动刷新,并且触发add函数-->
+            </div>
         </div>
     </form>
     <div class="task-list">

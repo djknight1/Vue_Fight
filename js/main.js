@@ -1,6 +1,6 @@
-;(function () {
+;(function () { /*2018.3.26 me和this*/
     'use strict';/*使用js的严格模式 让语言更有规范 报错更容易找到*/
-    var a=0;
+    var a=1;
     /*组件之间的通信可以通过事件监听器来表示*/
         var Event = new Vue();
 
@@ -33,14 +33,19 @@
         mounted:function () {
             var me = this;/*在下面this是event本身 不是vue*/
             this.list=ms.get('list')||this.list; /*每次VUE初始化的时候 要把他取出来,当this.list是空的时候等于空*/
-            me.$on('remove',function (id) {
-               this.remove(id);
+            setInterval(function () {  /*从生命开始每隔1s就检查是否有需要提示的事件*/
+                me.check_alerts()
+            },1000);
+
+
+            Event.$on('remove',function (params) {
+               me.remove(params);
             });
-            me.$on('change_completed',function (id) {
-                this.merge();
+            Event.$on('change_completed',function (params) {
+               me.change_completed(params);
             });
-            me.$on('set_current',function (params) {
-               this.set_current(params);
+            Event.$on('set_current',function (params) {
+               me.set_current(params);
             })
         },
         watch:{   /*当某个值发生变化时,添加事件,跟监听器差不多*/
@@ -57,6 +62,23 @@
             }
         },
         methods:{
+            check_alerts:function () {  /*检测当前是否有需要提醒的任务 */
+                var me =this;
+                this.list.forEach(function (row,index) {  /*对数组的每一项进行funcion 第一个参数是数组元素内容,第二个参数是当前元素的索引,第三个是当前数组名*/
+                    var alert_time = row.alert_time;
+                    if (!alert_time||row.alert_confirmed) return 0;
+
+                    var alert_time = new Date(alert_time).getDate(); /*把alert_time变成一个时间对象,调用getDate方法 获得到Date（）里面时间的毫秒*/
+                    var now_time = new Date().getDate();/*Date里面不加参数 获取到现在时间的毫秒*/
+
+                    if(now_time>=alert_time){
+                         var confirmed = confirm(row.title);/*如果用户确认了不再提醒 那你就不要再提醒 直接返回*/
+                        Vue.set(me.list[index],"alert_confirmed",confirmed);
+                    }
+
+                })
+            },
+
             merge:function () {        /*回车敲下去后,能过增加一件事*/
                 var is_update = this.current_content.id; /*current一直只有一个*/
                 /*input绑定的this.current-content.title是时时的
@@ -99,6 +121,7 @@
                 */
 
             },
+
             remove :function (id) {
                 var index = this.find_index_by_id(id); /*splice从数组中删除 第一个参数表示索引,第二个参数表示从索引开始删除的数目*/
                 this.list.splice(index,1);
