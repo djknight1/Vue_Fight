@@ -1,6 +1,6 @@
 ;(function () { /*2018.3.26 me和this*/
     'use strict';/*使用js的严格模式 让语言更有规范 报错更容易找到*/
-    var a=1;
+
     /*组件之间的通信可以通过事件监听器来表示*/
         var Event = new Vue();
 
@@ -11,14 +11,8 @@
             action:function (name,param) {
                 Event.$emit(name,param);   /*子组件点击方法触发action方法,传递两个参数,一个是自定义事件名,另一个是参数*/
             } ,                         /*action方法触发自定义名字为name的事件*/
-                                        /*在父组件挂载的时候触发 父组件挂载时就是Vue mounted*/
-        }
+        }                               /*在父组件挂载的时候触发 父组件挂载时就是Vue mounted*/
     });
-
-
-
-
-
 
     function copy(obj) {   /*assign用的太多了 把它封装起来*/
         return Object.assign({},obj);
@@ -28,11 +22,18 @@
         el: "#main",
         data: {
             list: [], /*这是一个待办事项里面的数据*/
+            last_id:1,
             current_content:{},   /*里面是搞事情那一栏的具体参数,如是否完成,具体内容,什么时候提醒*/
         },
         mounted:function () {
             var me = this;/*在下面this是event本身 不是vue*/
+
             this.list=ms.get('list')||this.list; /*每次VUE初始化的时候 要把他取出来,当this.list是空的时候等于空*/
+            if(ms.get('last_id')) {
+                this.last_id = ms.get('last_id');
+            }
+            else this.last_id = 1;
+
             setInterval(function () {  /*从生命开始每隔1s就检查是否有需要提示的事件*/
                 me.check_alerts()
             },1000);
@@ -41,10 +42,13 @@
             Event.$on('remove',function (params) {
                me.remove(params);
             });
+            Event.$on('change_detail',function (params) {
+                me.change_detail(params);
+            });
             Event.$on('change_completed',function (params) {
                me.change_completed(params);
             });
-            Event.$on('set_current',function (params) {
+            Event.$on('set_current',function (params) {   /*更新*/
                me.set_current(params);
             })
         },
@@ -68,15 +72,23 @@
                     var alert_time = row.alert_time;
                     if (!alert_time||row.alert_confirmed) return 0;
 
-                    var alert_time = new Date(alert_time).getDate(); /*把alert_time变成一个时间对象,调用getDate方法 获得到Date（）里面时间的毫秒*/
-                    var now_time = new Date().getDate();/*Date里面不加参数 获取到现在时间的毫秒*/
-
+                    var alert_time = new Date(alert_time).getTime(); /*把alert_time变成一个时间对象,调用getDate方法 获得到Date（）里面时间的毫秒*/
+                    var now_time = new Date().getTime();/*Date里面不加参数 获取到现在时间的毫秒*/
+                    console.log(alert_time);
+                    console.log(now_time);
                     if(now_time>=alert_time){
                          var confirmed = confirm(row.title);/*如果用户确认了不再提醒 那你就不要再提醒 直接返回*/
                         Vue.set(me.list[index],"alert_confirmed",confirmed);
                     }
 
                 })
+            },
+
+            change_detail:function (id) {
+                var index = this.find_index_by_id(id);
+                Vue.set(this.list[index],'show_detail',!this.list[index].show_detail);
+
+                
             },
 
             merge:function () {        /*回车敲下去后,能过增加一件事*/
@@ -94,13 +106,14 @@
                     var title = this.current_content.title;
                     if(!title&&title!==0) return; /*空的时候不接受,0的时候接受*/
                     var todo =copy(this.current_content);
-                    todo.id = this.next_id();
+                    todo.id = this.last_id++;
+                    ms.set('last_id',this.last_id);
                     this.list.push(todo);
-                    a++;
+
+
                 }
 
                 this.reset_current();
-                console.log(this.list);
                 /*
                 *assign方法把后面的可枚举属性复制到第一个参数中,遇到重名的会实行替换
                 * 如object.assign({a:1},{a:2,b:2})结果是{a:2,b:2}
@@ -127,10 +140,6 @@
                 this.list.splice(index,1);
             },
 
-            next_id :function () {
-                return a;
-            },
-
             set_current:function (todo) {
                this.current_content = copy(todo);/*这样的话你改变this.current_content todo就不会跟着改变*/
 
@@ -148,7 +157,6 @@
             change_completed:function (id) {
                 var index = this.find_index_by_id(id);
                 Vue.set(this.list[index],'completed',!this.list[index].completed);   /*completed刚开始没有默认为NULL*/
-                console.log(this.list)
             }
         }
     });

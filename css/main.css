@@ -5,19 +5,38 @@
     box-sizing: border-box;
     position: relative;
 }
-.wrap{
-    max-width:500px;
-    margin:0 auto;
+body{
+    color: #444;
 }
+
+.wrap {
+    max-width: 500px;
+    margin: 0 auto;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 input,button,textarea{
 
-    border: 1px solid rgba(0, 0, 0, .3);
+    border: 1px solid rgba(0, 0, 0, .1);
     border-radius: 3px;
     padding:5px 10px;
 }
-input{
-   display: block;
+input, textarea {
+    outline: none;
+    display: block;
     width: 100%;
+    margin-bottom: 10px;
+    -webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, .1);
+    -moz-box-shadow: 0 2px 3px rgba(0, 0, 0, .1);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, .1);
+}
+input:focus, textarea:focus {
+    border: 1px solid #db4c3f;
+}
+button.primary {
+    background: #db4c3f;
+    color: #f7f3ea;
 }
 .navbar,.header{
     text-align: center;
@@ -32,10 +51,69 @@ input{
 .navbar h1 {
     font-size: 18px;
     margin:0;
-    background: rgba(0,0,0,0);
 }
 .header{
     padding:20px 0;
     color: #555;
     font-size: 18px;
+}
+.task-list .item {
+    padding: 5px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.task-list .item button{
+    display: none;
+    font-size: 80%;
+    background: #fff;
+}
+.task-list .item:hover {
+    background: rgba(0, 0, 0, .03);
+}
+.task-list .item:hover button{
+    display: inline-block;
+}
+.task-list .item .title {
+    padding: 10px;
+}
+
+.task-list .item .detail {
+    display: block;
+    font-size: 80%;
+    color: #666;
+}
+
+.task-list .item > * {
+    padding: 5px;
+    display: inline-block;
+    line-height: 1.2;
+    vertical-align: middle;
+}
+
+.toggle-complete {
+    width: 30px;
+    height: 30px;
+    background: #50beff;
+    border: 1px solid #46a9e4;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+}
+.toggle-complete:hover {
+    background: #3e9bd2;
+    border-color: #3587b7;
+}
+
+.completed .toggle-complete {
+    background: #ccc;
+    border-color: #bbb;
+}
+
+.segment-title {
+    color: #aaa;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: lighter;
 }
